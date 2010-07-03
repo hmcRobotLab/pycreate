@@ -1,0 +1,72 @@
+.. _03interactive:
+
+==================
+Interactive Python
+==================
+
+Getting started with ipython::
+
+    $ ipython           # Loads the python interpreter into memory
+    import create       # Loads the create module into memory
+    r = create.Create('/dev/ttyUSB0')    # Make serial connection, assign object to r
+    r.start()           # changes state from OFF_MODE to PASSIVE_MODE
+    r.toSafeMode()      # changes state from PASSIVE_MODE to SAFE_MODE
+    r.go( -5 )          # go at -5 cm/second, backwards
+    r.go( 0 )           # stops the create
+    r.go( 0, 10 )       # 0 cm/sec translational velocity and 10 deg/sec rotational
+    r.stop( )           # another way to stop, same as r.go( 0 )
+    r.getSensor('ANGLE') # Reads the value of angle sensor from robot and returns it
+    r.getSensor('DISTANCE') # Reads the value of distance sensor from robot and returns it
+    r.shutdown()        # shuts down the connection to the Create, after first
+                        # stopping the Create and putting the Create into passive mode
+    reset               # clears all namespaces from memory, clears software environment
+
+Then push the power button to turn off the power to the robot.
+Then return robot to charger, should see the blinking amber charging led.
+
+More ipython::
+
+    ipython                             # Loads the python interpreter into memory
+    from pyroomba import *              # Instantiate the pyroomba package
+    r = RoombaClassic('/dev/ttyUSB0')   # Make serial connection, assign object to r
+    r.start()                           # Robot wakeup
+    r.safe()                            # Robot safe mode
+    r.leds(255, 255)                    # Example testing of a angry Roomba
+    r.leds(0, 255)                      # Example testing of a normal Roomba
+    r.close()                           # To close the serial connection cleanly
+    reset                               # ipython command to clear all namespaces from memory, 
+                                        # clears software environment for a fresh start
+
+Cut and paste commands into interactive python to verify robot hardware write and read control::
+
+    import create, time                # Instantiate the create and time classes.
+    r = create.Create('/dev/ttyUSB0')  # Make serial connection, assign object to r.
+    r.toFullMode()                     # To get full control of hardware.
+    r.drive((-50,50))                  # speed in mm/s max is (500,500).
+    time.sleep(2)                      # Delay execution for 2 seconds.
+    r.stop()                           # same as r.go().
+
+next paste this in::
+
+    import math                        # Instantiate the math class.
+    x = r.x                            # x coordinate of the robot distance in mm from start
+    y = r.y                            # y coordinate of the robot distance in mm from start
+    th = r.thr                         # angular heading in radians (theta)
+    thd = math.degrees(r.thr)          # angular heading in degrees (theta)
+    thr = math.radians(thd)            # thr is the robot's heading, theta, in radians.
+    bl = r.bump_left                   # True if the left bumper was pressed during last sense()
+    br = r.bump_right                  # True if the left bumper was pressed during last sense()
+    realpose, odometry, bump, dist, color = self.getData()  # Gather sensor data.
+    x1, y1, thd1 = odometry            # unpack the odometry
+    bleft,bright = bump                # unpack the bumps          
+    for i in (x,y,th,thd,thr,bl,br,realpose,odometry,dist,color,x1,y1,thd1,bleft,bright):
+        print i                        # print the data we have
+
+.. note:: bump is a list of two bump sensor readings: left and right. dist is the straight-ahead range to the nearest wall. 
+
+finally paste this in::
+
+    r.shutdown()                       # To close the serial connection cleanly, same as r.close()
+    reset                              # ipython command to clear all namespaces from memory, clears software environment
+
+.. note:: You can reset or change the robot's odometry by assigning values to r.x, r.y, and r.thr.  Python has a function math.degrees(thr) which returns thr radians in degrees, import math to use this function.  The value of r.bump_left changes depending on whether the bumper was pressed during the previous call to r.sense(). Remember the state of the robot is whatever was happening at the time of the call to r.sense() or the drive routine -- not the immediate time of checking the data fields themselves.  To cleanly close the connection to the robot, use r.shutdown(). After a shutdown() the left-hand green LED should be lighted.

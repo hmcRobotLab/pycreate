@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Setup Overview &mdash; Create v0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Create v0.1 documentation" href="index.html" />
+    <link rel="next" title="Interactive Python" href="03interactive.html" />
+    <link rel="prev" title="What is Create?" href="01forward.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="index.html"><img src="_static/create1.jpg" border="0" alt="py4sci"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="03interactive.html" title="Interactive Python"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="01forward.html" title="What is Create?"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li>
+        <li><a href="search.html">search</a>|&nbsp;</li>
+       <li><a href="contents.html">documentation </a> &raquo;</li>
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">Setup Overview</a></li>
+<li><a class="reference external" href="#wireless-network">Wireless Network</a></li>
+<li><a class="reference external" href="#physical-startup-boot-and-connect">Physical, Startup, Boot, and Connect</a></li>
+<li><a class="reference external" href="#software">Software</a></li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="01forward.html"
+                                  title="previous chapter">What is Create?</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="03interactive.html"
+                                  title="next chapter">Interactive Python</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/02setup.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="setup-overview">
+<span id="setup"></span><h1>Setup Overview<a class="headerlink" href="#setup-overview" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>Teather only: connect create and computer with serial cable (9pin to usb or rs232)</li>
+<li>Teather and wireless: an additional computer and wireless network needed</li>
+</ul>
+</div>
+<div class="section" id="wireless-network">
+<h1>Wireless Network<a class="headerlink" href="#wireless-network" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>Power on wireless access point</li>
+<li>Connection name - Westell or Netgear</li>
+<li>Security - WEP 40/128-bit Key or None</li>
+<li>Key: 4F228E4859</li>
+<li>SSID: 08FX06046129</li>
+<li>Mode: Infrastructure</li>
+<li>Router access: <a class="reference external" href="http://192.168.1.1">http://192.168.1.1</a> userid: admin , passwd: password</li>
+<li>userid: verison.net userid , passwd: verison.net passwd.</li>
+</ul>
+</div>
+<div class="section" id="physical-startup-boot-and-connect">
+<h1>Physical, Startup, Boot, and Connect<a class="headerlink" href="#physical-startup-boot-and-connect" title="Permalink to this headline">¶</a></h1>
+<ol class="arabic">
+<li><p class="first">Start with robot on open floor space</p>
+</li>
+<li><p class="first">Press power button on robot, verify green led</p>
+</li>
+<li><p class="first">Start robot laptop, configure wireless, and sshd</p>
+</li>
+<li><p class="first">Connect usb to serial cable between robot and robot laptop</p>
+</li>
+<li><p class="first">Secure robot and robot laptop together with velcro</p>
+</li>
+<li><p class="first">Start base laptop, and wireless, then ssh to robot laptop: Use ssh -Y from base laptop to access robot laptop.  The robot laptop is directly connected to the icreate robot serial interface.</p>
+</li>
+<li><p class="first">On robot laptop, remotely lookup serial port name connected to robot.  Python needs this variable to make the serial connection:</p>
+<div class="highlight-python"><pre>$ ls /dev/tty &lt;tab&gt;
+/dev/ttyUSB0 is my connection, yours may differ</pre>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="software">
+<h1>Software<a class="headerlink" href="#software" title="Permalink to this headline">¶</a></h1>
+<p>Clone the latest software to your computer:</p>
+<div class="highlight-python"><pre>$ git clone git://github.com/mgobryan/pycreate</pre>
+</div>
+<p>Add the create.py file to your python path:</p>
+<div class="highlight-python"><pre>$ sudo cp pycreate/create.py /usr/local/lib/python2.6/site-packages/</pre>
+</div>
+<p>Change into the directory with create.py:</p>
+<div class="highlight-python"><pre>$ cd pycreate</pre>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="03interactive.html" title="Interactive Python"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="01forward.html" title="What is Create?"
+             >previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li>
+        <li><a href="search.html">search</a>|&nbsp;</li>
+       <li><a href="contents.html">documentation </a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, Michael O&#39;Bryan.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>

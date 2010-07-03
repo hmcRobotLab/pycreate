@@ -1,0 +1,12 @@
+Pycreate is a collection of programs to control the icreate robot.
+
+Requirements:
+
+        * Python 2.5 or 2.6 (http://www.python.org)
+        * PySerial
+
+For docs in html.
+cd docs; make html
+Point browser at _build/html/index.html
+
+Contact: obryanm (at) gmail (dot) com

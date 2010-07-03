@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Interactive Python &mdash; Create v0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Create v0.1 documentation" href="index.html" />
+    <link rel="next" title="Time trial" href="tt.html" />
+    <link rel="prev" title="Setup Overview" href="02setup.html" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="index.html"><img src="_static/create1.jpg" border="0" alt="py4sci"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tt.html" title="Time trial"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="02setup.html" title="Setup Overview"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li>
+        <li><a href="search.html">search</a>|&nbsp;</li>
+       <li><a href="contents.html">documentation </a> &raquo;</li>
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="02setup.html"
+                                  title="previous chapter">Setup Overview</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="tt.html"
+                                  title="next chapter">Time trial</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/03interactive.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="interactive-python">
+<span id="interactive"></span><h1>Interactive Python<a class="headerlink" href="#interactive-python" title="Permalink to this headline">¶</a></h1>
+<p>Getting started with ipython:</p>
+<div class="highlight-python"><pre>$ ipython           # Loads the python interpreter into memory
+import create       # Loads the create module into memory
+r = create.Create('/dev/ttyUSB0')    # Make serial connection, assign object to r
+r.start()           # changes state from OFF_MODE to PASSIVE_MODE
+r.toSafeMode()      # changes state from PASSIVE_MODE to SAFE_MODE
+r.go( -5 )          # go at -5 cm/second, backwards
+r.go( 0 )           # stops the create
+r.go( 0, 10 )       # 0 cm/sec translational velocity and 10 deg/sec rotational
+r.stop( )           # another way to stop, same as r.go( 0 )
+r.getSensor('ANGLE') # Reads the value of angle sensor from robot and returns it
+r.getSensor('DISTANCE') # Reads the value of distance sensor from robot and returns it
+r.shutdown()        # shuts down the connection to the Create, after first
+                    # stopping the Create and putting the Create into passive mode
+reset               # clears all namespaces from memory, clears software environment</pre>
+</div>
+<p>Then push the power button to turn off the power to the robot.
+Then return robot to charger, should see the blinking amber charging led.</p>
+<p>More ipython:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ipython</span>                             <span class="c"># Loads the python interpreter into memory</span>
+<span class="kn">from</span> <span class="nn">pyroomba</span> <span class="kn">import</span> <span class="o">*</span>              <span class="c"># Instantiate the pyroomba package</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">RoombaClassic</span><span class="p">(</span><span class="s">&#39;/dev/ttyUSB0&#39;</span><span class="p">)</span>   <span class="c"># Make serial connection, assign object to r</span>
+<span class="n">r</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>                           <span class="c"># Robot wakeup</span>
+<span class="n">r</span><span class="o">.</span><span class="n">safe</span><span class="p">()</span>                            <span class="c"># Robot safe mode</span>
+<span class="n">r</span><span class="o">.</span><span class="n">leds</span><span class="p">(</span><span class="mf">255</span><span class="p">,</span> <span class="mf">255</span><span class="p">)</span>                    <span class="c"># Example testing of a angry Roomba</span>
+<span class="n">r</span><span class="o">.</span><span class="n">leds</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span> <span class="mf">255</span><span class="p">)</span>                      <span class="c"># Example testing of a normal Roomba</span>
+<span class="n">r</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>                           <span class="c"># To close the serial connection cleanly</span>
+<span class="n">reset</span>                               <span class="c"># ipython command to clear all namespaces from memory,</span>
+                                    <span class="c"># clears software environment for a fresh start</span>
+</pre></div>
+</div>
+<p>Cut and paste commands into interactive python to verify robot hardware write and read control:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">create</span><span class="o">,</span> <span class="nn">time</span>                <span class="c"># Instantiate the create and time classes.</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">create</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span><span class="s">&#39;/dev/ttyUSB0&#39;</span><span class="p">)</span>  <span class="c"># Make serial connection, assign object to r.</span>
+<span class="n">r</span><span class="o">.</span><span class="n">toFullMode</span><span class="p">()</span>                     <span class="c"># To get full control of hardware.</span>
+<span class="n">r</span><span class="o">.</span><span class="n">drive</span><span class="p">((</span><span class="o">-</span><span class="mf">50</span><span class="p">,</span><span class="mf">50</span><span class="p">))</span>                  <span class="c"># speed in mm/s max is (500,500).</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">2</span><span class="p">)</span>                      <span class="c"># Delay execution for 2 seconds.</span>
+<span class="n">r</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>                           <span class="c"># same as r.go().</span>
+</pre></div>
+</div>
+<p>next paste this in:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">math</span>                        <span class="c"># Instantiate the math class.</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">x</span>                            <span class="c"># x coordinate of the robot distance in mm from start</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">y</span>                            <span class="c"># y coordinate of the robot distance in mm from start</span>
+<span class="n">th</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">thr</span>                         <span class="c"># angular heading in radians (theta)</span>
+<span class="n">thd</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">thr</span><span class="p">)</span>          <span class="c"># angular heading in degrees (theta)</span>
+<span class="n">thr</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">thd</span><span class="p">)</span>            <span class="c"># thr is the robot&#39;s heading, theta, in radians.</span>
+<span class="n">bl</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">bump_left</span>                   <span class="c"># True if the left bumper was pressed during last sense()</span>
+<span class="n">br</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">bump_right</span>                  <span class="c"># True if the left bumper was pressed during last sense()</span>
+<span class="n">realpose</span><span class="p">,</span> <span class="n">odometry</span><span class="p">,</span> <span class="n">bump</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getData</span><span class="p">()</span>  <span class="c"># Gather sensor data.</span>
+<span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">thd1</span> <span class="o">=</span> <span class="n">odometry</span>            <span class="c"># unpack the odometry</span>
+<span class="n">bleft</span><span class="p">,</span><span class="n">bright</span> <span class="o">=</span> <span class="n">bump</span>                <span class="c"># unpack the bumps</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">th</span><span class="p">,</span><span class="n">thd</span><span class="p">,</span><span class="n">thr</span><span class="p">,</span><span class="n">bl</span><span class="p">,</span><span class="n">br</span><span class="p">,</span><span class="n">realpose</span><span class="p">,</span><span class="n">odometry</span><span class="p">,</span><span class="n">dist</span><span class="p">,</span><span class="n">color</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">thd1</span><span class="p">,</span><span class="n">bleft</span><span class="p">,</span><span class="n">bright</span><span class="p">):</span>
+    <span class="k">print</span> <span class="n">i</span>                        <span class="c"># print the data we have</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">bump is a list of two bump sensor readings: left and right. dist is the straight-ahead range to the nearest wall.</p>
+</div>
+<p>finally paste this in:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">r</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>                       <span class="c"># To close the serial connection cleanly, same as r.close()</span>
+<span class="n">reset</span>                              <span class="c"># ipython command to clear all namespaces from memory, clears software environment</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can reset or change the robot&#8217;s odometry by assigning values to r.x, r.y, and r.thr.  Python has a function math.degrees(thr) which returns thr radians in degrees, import math to use this function.  The value of r.bump_left changes depending on whether the bumper was pressed during the previous call to r.sense(). Remember the state of the robot is whatever was happening at the time of the call to r.sense() or the drive routine &#8211; not the immediate time of checking the data fields themselves.  To cleanly close the connection to the robot, use r.shutdown(). After a shutdown() the left-hand green LED should be lighted.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tt.html" title="Time trial"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="02setup.html" title="Setup Overview"
+             >previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li>
+        <li><a href="search.html">search</a>|&nbsp;</li>
+       <li><a href="contents.html">documentation </a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, Michael O&#39;Bryan.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>
