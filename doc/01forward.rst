@@ -8,7 +8,7 @@ iRobot Create is a mobile robot platform.
 Why use Create?
 ===============
 
-Create is preassembled, ready to use, and affordable.  iRobot provides a documented open serial interface called, "iRobot 500 Series Open Interface protocol."  Several software languages have been used to implement iRobot's open interface including Python.  Many different schools are using the create platform for education.
+Create is preassembled, ready to use, and reasonablly.  iRobot provides a documented open serial interface called, "iRobot 500 Series Open Interface protocol."  Several software languages have been used to implement iRobot's open interface including Python.  Many different schools are using the create platform for education.
 
 How to use Create?
 ==================

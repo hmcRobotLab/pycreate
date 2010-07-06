@@ -5,8 +5,6 @@ Requirements:
         * Python 2.5 or 2.6 (http://www.python.org)
         * PySerial
 
-For docs in html.
-cd docs; make html
-Point browser at _build/html/index.html
+For latest docs in html: cd docs; make html
 
 Contact: obryanm (at) gmail (dot) com
