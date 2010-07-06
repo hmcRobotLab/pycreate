@@ -1,38 +1,4 @@
-#
-# create.py
-#
 # Python interface for the iRobot Create
-#
-# Zach Dodds   dodds@cs.hmc.edu
-# updated for SIGCSE 3/9/07
-
-#create.py
-#Written 2008-6-3 by Peter Mawhorter
-#Based on pyCreate's create module... this is a minimal version of that code.
-
-#create2.py
-#Added code for wait for angle, wait for distance, wait for event (C.A. Berry) - 8/22/08
-#Added code for sensor streaming, removed obsolete, unnecessary code (integrate odometery) (CAB) - 8/26/08
-
-#create3.py
-#Added the senseAndRetry code from prior versions
-#Modified the moveTo(0 adn turnTo() functions to work with go instead of drive function
-
-#NOTE: renamed back to create.py - 9/16/08
-
-# v1.1 Added access to overcurrent; made sensor streaming optional in the Create constructor. This allows
-# manual polling if desired. (M Boutell, 10/2/2008)
-
-# v1.2 Added IR broadcast streaming functions, so a robot can send an IR signal
-# over the omnidirectional IR LEDs. Also Create constructor now calls setLED,
-# so the Create displays an amber light when the power is on.
-
-# v2.0 Complete overhaul, removing many duplicate functions not used by students.
-# Removed threaded sensor polling: less efficient if many sensors needed, but more predictable
-# Added IR broadcast streaming using the scripting functionality of the OI,
-# so it can stream while moving without needing an additional thread.
-
-# v2.1 Added constants for array indices when sensors return an array
 
 version = 2.1
 

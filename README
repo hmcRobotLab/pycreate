@@ -6,5 +6,3 @@ Requirements:
         * PySerial
 
 For latest docs in html: cd docs; make html
-
-Contact: obryanm (at) gmail (dot) com

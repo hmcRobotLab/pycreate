@@ -1,2 +1,7 @@
-.bak
-.pyc
+*.pyc
+*.sqlite
+build
+dist
+bin
+parts
+local_settings.py
