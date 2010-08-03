@@ -19,4 +19,3 @@ Interactive Python
     Out[10]: 25              # and returns it
     In [11]: r.shutdown()    # stops and shuts down the connection to the robot
     In [12]: reset           # clears all namespaces from memory, clears software environment
-    In [13]:                 # with the basics you are ready to start exploring
