@@ -1,12 +1,55 @@
+#
+# create.py
+#
 # Python interface for the iRobot Create
+#
+# Zach Dodds   dodds@cs.hmc.edu
+# updated for SIGCSE 3/9/07
 
-version = 2.1
+#create.py
+#Written 2008-6-3 by Peter Mawhorter
+#Based on pyCreate's create module... this is a minimal version of that code.
+
+#create2.py
+#Added code for wait for angle, wait for distance, wait for event (C.A. Berry) - 8/22/08
+#Added code for sensor streaming, removed obsolete, unnecessary code (integrate odometery) (CAB) - 8/26/08
+
+#create3.py
+#Added the senseAndRetry code from prior versions
+#Modified the moveTo(0 adn turnTo() functions to work with go instead of drive function
+
+#NOTE: renamed back to create.py - 9/16/08
+
+# v1.1 Added access to overcurrent; made sensor streaming optional in the Create constructor. This allows
+# manual polling if desired. (M Boutell, 10/2/2008)
+
+# v1.2 Added IR broadcast streaming functions, so a robot can send an IR signal 
+# over the omnidirectional IR LEDs. Also Create constructor now calls setLED, 
+# so the Create displays an amber light when the power is on.
+
+# v2.0 Complete overhaul, removing many duplicate functions not used by students.
+# Removed threaded sensor polling: less efficient if many sensors needed, but more predictable
+# Added IR broadcast streaming using the scripting functionality of the OI, 
+# so it can stream while moving without needing an additional thread.
+
+# v2.1 Added constants for array indices when sensors return an array 
+
+# v2.2 Added support for a simulator to connect via a network socket (RHIT Senior Project Team 9/12/09)
+
+# v2.3 Added ability to retry getting sensor data.
+
+# v3.0 (TODO: rename shutdown as disconnect)
+
+
+
+version = 2.3
 
 import serial
+import socket
 import math
 import time
 import select
-import thread # thread libs needed to lock serial port during transmissions
+import _thread # thread libs needed to lock serial port during transmissions
 from threading import *
 
 # The Create's baudrate and timeout:
@@ -38,10 +81,10 @@ QUERYLIST = chr(149)       # Create only
 PAUSERESUME = chr(150)       # Create only
 WAITTIME = chr(155)#Added by CAB, time in 1 data byte 1 in 10ths of a second
 WAITDIST = chr(156)#Added by CAB, distance in 16-bit signed in mm
-WAITANGLE = chr(157)#Added by CAB, angle in 16-bit signed in degrees
+WAITANGLE = chr(157)#Added by CAB, angle in 16-bit signed in degrees 
 WAITEVENT = chr(158)#Added by CAB, event in signed event number
 # MB added these for scripting
-DEFINE_SCRIPT = chr(152)
+DEFINE_SCRIPT = chr(152) 
 RUN_SCRIPT = chr(153)
 
 
@@ -84,7 +127,7 @@ COMMANDS = {
 }
 #TODO: define the rest of the command codes in the SCI.
 
-# Constants for array indices when sensors return an array
+# Constants for array indices when sensors return an array 
 # Bumps and wheeldrops
 WHEELDROP_CASTER = 0
 WHEELDROP_LEFT = 1
@@ -113,6 +156,10 @@ DIGITAL_INPUT_0 = 4
 # Charging sources available
 HOME_BASE = 0
 INTERNAL_CHARGER = 1
+
+# For the getSensor retry loop.
+MIN_SENSOR_RETRIES = 2 # 1 s
+RETRY_SLEEP_TIME = 0.5 # 50ms
 
 class SensorModule:
         def __init__(self, packetID, parseMode, packetSize):
@@ -173,16 +220,16 @@ INTERPRET = {
 #
 def bytesOfR( r ):
         """ for looking at the raw bytes of a sensor reply, r """
-        print 'raw r is', r
+        print('raw r is', r)
         for i in range(len(r)):
-            print 'byte', i, 'is', ord(r[i])
-        print 'finished with formatR'
+            print('byte', i, 'is', ord(r[i]))
+        print('finished with formatR')
 
 def bitOfByte( bit, byte ):
         """ returns a 0 or 1: the value of the 'bit' of 'byte' """
         if bit < 0 or bit > 7:
-            print 'Your bit of', bit, 'is out of range (0-7)'
-            print 'returning 0'
+            print('Your bit of', bit, 'is out of range (0-7)')
+            print('returning 0')
             return 0
         return ((byte >> bit) & 0x01)
 
@@ -190,7 +237,7 @@ def toBinary( val, numBits ):
         """ prints numBits digits of val in binary """
         if numBits == 0:  return
         toBinary( val>>1 , numBits-1 )
-        print (val & 0x01),  # print least significant bit
+        print((val & 0x01), end=' ')  # print least significant bit
 
 def fromBinary( s ):
         """ s is a string of 0's and 1's """
@@ -216,9 +263,9 @@ def twosComplementInt2bytes( highByte, lowByte ):
         """ returns an int which has the same value
         as the twosComplement value stored in
         the two bytes passed in
-    
+     
         the output range should be -32768 to 32767
-    
+     
         chars or ints can be input, both will be
         truncated to 8 bits
         """
@@ -244,11 +291,11 @@ def toTwosComplement2Bytes( value ):
             # if it's negative, I think it is this
         else:
             eqBitVal = (1<<16) + value
-   
+    
         return ( (eqBitVal >> 8) & 0xFF, eqBitVal & 0xFF )
 
 def displayVersion():
-    print "pycreate version", version
+    print("pycreate version", version)
 
 
 class CommunicationError(Exception):
@@ -262,27 +309,22 @@ class CommunicationError(Exception):
     return str(self.msg)
   def __repr__(self):
     return "CommunicationError(" + repr(self.msg) + ")"
-  
+   
 
 # ======================The CREATE ROBOT CLASS (modified by CAB 8/08)==========================
 class Create:
-    """ 
-    The Create class is an abstraction of the iRobot Create's
-    SCI interface, including communication and a bit
-    of processing of the strings passed back and forth.
-       
-    When you create an object of type Create, the code
-    will try to open a connection to it - so, it will fail
-    if it's not attached!
+    """ the Create class is an abstraction of the iRobot Create's
+        SCI interface, including communication and a bit
+        of processing of the strings passed back and forth
+        
+        when you create an object of type Create, the code
+        will try to open a connection to it - so, it will fail
+        if it's not attached!
     """
-   
-    # TODO: Add constants for sensor subfields, e.g.:
-    LEFT_BUMPER = 3
-   
-   
+        
     # TODO: check if we can start in other modes...
-#======================== Starting up and Shutting Down================   
-    def __init__(self, PORT, startingMode=SAFE_MODE):
+#======================== Starting up and Shutting Down================    
+    def __init__(self, PORT, startingMode=SAFE_MODE, sim_mode = False):
         """ the constructor which tries to open the
             connection to the robot at port PORT
         """
@@ -292,68 +334,97 @@ class Create:
         #
         # the -1 here is because windows starts counting from 1
         # in the hardware control panel, but not in pyserial, it seems
-       
+        
         displayVersion()
-       
-       
+        
+        # fields for simulator
+        self.in_sim_mode = False
+        self.sim_sock = None
+        self.sim_host = '127.0.0.1'
+        self.sim_port = 65000
+        self.maxSensorRetries = MIN_SENSOR_RETRIES 
+        
         # if PORT is the string 'simulated' (or any string for the moment)
         # we use our SRSerial class
         self.comPort = PORT   #we want to keep track of the port number for reconnect() calls
-        print 'PORT is', PORT
+        print('PORT is', PORT)
         if type(PORT) == type('string'):
             if PORT == 'sim':
-                print 'In simulated mode...'
-                self.ser = 'sim'; # SRSerial('mapSquare.txt')
+                self.init_sim_mode()
+                self.ser = None
             else:
                 # for Mac/Linux - use whole port name
                 # print 'In Mac/Linux mode...'
                 self.ser = serial.Serial(PORT, baudrate=57600, timeout=0.5)
         # otherwise, we try to open the numeric serial port...
+                if (sim_mode):
+                    self.init_sim_mode()
         else:
             # print 'In Windows mode...'
             try:
                 self.ser = serial.Serial(PORT-1, baudrate=57600, timeout=0.5)
+                if (sim_mode):
+                    self.init_sim_mode()
             except serial.SerialException:
-                print "unable to access the serial port - please cycle the robot's power"
+                print("unable to access the serial port - please cycle the robot's power")
 
         # did the serial port actually open?
-        if self.ser != 'sim' and self.ser.isOpen():
-            print 'Serial port did open on iRobot Create...'
+        if self.in_sim_mode:
+            print("In simulator mode")
+        elif self.ser.isOpen():
+            print('Serial port did open on iRobot Create...')
         else:
-            print 'Serial port did NOT open, check the'
-            print '  - port number'
-            print '  - physical connection'
-            print '  - baud rate of the roomba (it\'s _possible_, if unlikely,'
-            print '              that it might be set to 19200 instead'
-            print '              of the default 57600 - removing and'
-            print '              reinstalling the battery should reset it.'
-       
+            print('Serial port did NOT open, check the')
+            print('  - port number')
+            print('  - physical connection')
+            print('  - baud rate of the roomba (it\'s _possible_, if unlikely,')
+            print('              that it might be set to 19200 instead')
+            print('              of the default 57600 - removing and')
+            print('              reinstalling the battery should reset it.')
+        
         # define the class' Open Interface mode
         self.sciMode = OFF_MODE
 
         if (startingMode == SAFE_MODE):
-            print 'Putting the robot into safe mode...'
+            print('Putting the robot into safe mode...')
             self.toSafeMode()
             time.sleep(0.3)
         if (startingMode == FULL_MODE):
-            print 'Putting the robot into full mode...'
+            print('Putting the robot into full mode...')
             self.toSafeMode()
             time.sleep(0.3)
             self.toFullMode()
-           
-        self.serialLock = thread.allocate_lock()
+            
+        self.serialLock = _thread.allocate_lock()
 
-        self.setLEDs(80,255,0,0) # MB: was 100, want more yellowish       
+        #self.setLEDs(80,255,0,0) # MB: was 100, want more yellowish        
 
-        '''TODO: implement sensor data coherency check/handling here'''
-        # sometimes gives "create.CommunicationError: Improper sensor query response length:"
-        #angle = self.getSensor('ANGLE')
-        #distance = self.getSensor('DISTANCE')
-        # Both angle and distance should be ~0. If not, then the sensor was filled
-        # with junk initially, so we reconnect.
-        #if abs(angle) > 10 or abs(distance) > 10:
-        #    self.reconnect(PORT)
-       
+    def send(self, bytes1):
+        if self.in_sim_mode:
+            if self.ser:
+                self.ser.write( (bytes(bytes1, encoding = 'Latin-1')) )
+            #print(bytes1)
+            print (bytes(bytes1, encoding = 'Latin-1'))
+            self.sim_sock.send( (bytes(bytes1, encoding = 'Latin-1')) )
+        else:
+            self.ser.write( (bytes(bytes1, encoding = 'Latin-1')) )
+
+    def read(self, bytes):
+        message = ""
+        if self.in_sim_mode:
+            if self.ser:
+                self.ser.read( bytes )
+            message = self.sim_sock.recv( bytes )
+        else:
+            message = self.ser.read( bytes )
+        return str(message, encoding='Latin-1');
+
+    def init_sim_mode(self):
+        print('In simulated mode, connecting to simulator socket')
+        self.in_sim_mode = True # SRSerial('mapSquare.txt')
+        self.sim_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sim_sock.connect((self.sim_host,self.sim_port))
+
     def reconnect(self,comPort):
         '''
         This method closes the existing connection and reestablishes it.
@@ -367,22 +438,22 @@ class Create:
         self.__init__(comPort)
         self.start()
         time.sleep(0.25) # The recommended 200ms+ pause after mode commands.
-       
+        
         if (self.sciMode == SAFE_MODE):
-            print 'Putting the robot into safe mode...'
+            print('Putting the robot into safe mode...')
             self.toSafeMode()
             time.sleep(0.3)
         if (self.sciMode == FULL_MODE):
-            print 'Putting the robot into full mode...'
+            print('Putting the robot into full mode...')
             self.toSafeMode()
             time.sleep(0.3)
             self.toFullMode()
-        time.sleep(5) # The recommended 200ms+ pause after mode commands.
+        time.sleep(.25) # The recommended 200ms+ pause after mode commands.
 
 
     def start(self):
         """ changes from OFF_MODE to PASSIVE_MODE """
-        self.ser.write( START )
+        self.send( START )
         # they recommend 20 ms between mode-changing commands
         time.sleep(0.25)
         # change the mode we think we're in...
@@ -394,15 +465,18 @@ class Create:
         stopping the Create and putting the Create into passive mode.
         '''
         self.stop()
-       
+        
         self.__sendmsg(COMMANDS["MODE_PASSIVE"],'')
 
         time.sleep(0.25) # The recommended 200ms+ pause after mode commands.
 
         self.serialLock.acquire()
-        self.start()       # send Create back to passive mode
+        self.start()        # send Create back to passive mode
         time.sleep(0.1)
-        self.ser.close()
+        if self.in_sim_mode:
+            self.sim_sock.close()
+        else:
+            self.ser.close()
         self.serialLock.release()
 
     # MB: added back in as private method, since reconnect uses it.
@@ -418,14 +492,14 @@ class Create:
         self.ser.close()
         self.serialLock.release()
         return
-   
+    
     def _closeSer(self):
         """ just disconnects the serial port """
         self.serialLock.acquire()
         self.ser.close()
         self.serialLock.release()
         return
-   
+    
     def _openSer(self):
         self.serialLock.acquire()
         """ opens the port again """
@@ -433,7 +507,7 @@ class Create:
         self.serialLock.release()
         return
 
-#=============================== Serial Communication
+#=============================== Serial Communication 
     def __sendmsg(self, opcode, dataBytes):
         '''
         This method functions as the base of the protocol, sending a message
@@ -448,7 +522,7 @@ class Create:
         successful = False
         while not successful:
             try:
-                self.ser.write(opcode + dataBytes)
+                self.send(opcode + dataBytes)
                 successful = True
             except select.error:
                 pass
@@ -469,7 +543,7 @@ class Create:
         successful = False
         while not successful:
             try:
-                self.ser.write(opcode)
+                self.send(opcode)
                 successful = True
             except select.error:
                 pass
@@ -490,7 +564,7 @@ class Create:
         favor = None
         while not successful:
             try:
-                favor = self.ser.read(numBytes)
+                favor = self.read(numBytes)
                 successful = True
             except select.error:
                 pass
@@ -505,7 +579,7 @@ class Create:
         successful = False
         while not successful:
             try:
-                self.ser.write(opcode + dataSendBytes)
+                self.send(opcode + dataSendBytes)
                 successful = True
             except select.error:
                 pass
@@ -515,16 +589,16 @@ class Create:
         favor = None
         while not successful:
             try:
-                favor = self.ser.read(numBytesExpected)
+                favor = self.read(numBytesExpected)
                 successful = True
             except select.error:
                 pass
         self.serialLock.release()
-#unlock       
+#unlock        
         return favor
 
-       
-#========================= Moving Around ================================================   
+        
+#========================= Moving Around ================================================    
     def stop(self):
         """ stop calls go(0,0) """
         self.go(0,0)
@@ -547,14 +621,14 @@ class Create:
             velMmSec = math.fabs(radPerSec) * (258.0/2.0)
             # send it off to the robot
             self.drive( velMmSec, 0, dirstr )
-       
+        
         elif degPerSec == 0:
             # just handle forward/backward translation
             velMmSec = 10.0*cmPerSec
             bigRadius = 32767
             # send it off to the robot
             self.drive( velMmSec, bigRadius )
-       
+        
         else:
             # move in the appropriate arc
             radPerSec = math.radians(degPerSec)
@@ -565,7 +639,7 @@ class Create:
             if radiusMm < -32767: radiusMm = -32767
             self.drive( velMmSec, radiusMm )
         return
-
+ 
     def driveDirect( self, leftCmSec=0, rightCmSec=0 ):
         """ Go(cmpsec, degpsec) sets the robot's velocity to
                cmpsec centimeters per second
@@ -580,7 +654,7 @@ class Create:
         if leftCmSec > 50:  leftCmSec = 50
         if rightCmSec < -50: rightCmSec = -50
         if rightCmSec > 50: rightCmSec = 50
-       
+        
         # convert to mm/sec, ensure we have integers
         leftHighVal, leftLowVal = toTwosComplement2Bytes( int(leftCmSec*10) )
         rightHighVal, rightLowVal = toTwosComplement2Bytes( int(rightCmSec*10) )
@@ -592,39 +666,39 @@ class Create:
                 temp += chr(char)
         byteList = temp
         self.__sendmsg(DRIVEDIRECT,byteList)
-        #self.ser.write( DRIVEDIRECT )
-        #self.ser.write( chr(rightHighVal) )
-        #self.ser.write( chr(rightLowVal) )
-        #self.ser.write( chr(leftHighVal) )
-        #self.ser.write( chr(leftLowVal) )
+        #self.send( DRIVEDIRECT )
+        #self.send( chr(rightHighVal) )
+        #self.send( chr(rightLowVal) )
+        #self.send( chr(leftHighVal) )
+        #self.send( chr(leftLowVal) )
         return
-       
+        
     def waitTime(self,seconds):
         """ robot waits for the specified time to past (tenths of secs) before executing the next command (CAB)"""
         timeVal= twosComplementInt1byte(int(seconds))
-       
+        
         #send the command to the Creeate:
         self.__sendmsg(WAITTIME,chr(timeVal))
-   
+    
     def waitEvent(self,eventNumber):
         """ robot waits for the specified event to happen before executing the next command (CAB)"""
         eventVal= twosComplementInt1byte(int(eventNumber))
-       
+        
         #Send the command to the Create:
         self.__sendmsg(WAITEVENT,chr(eventVal))
-   
+    
     def waitDistance(self,centimeters):
         """ robot waits for the specified distance before executing the next command (CAB)"""
         distInMm = 10*centimeters
         distHighVal, distLowVal=toTwosComplement2Bytes( int(distInMm) )
-       
+        
         #Send the command to the Create:
         self.__sendmsg(WAITDIST,chr(distHighVal)+chr(distLowVal))
-        
+         
     def waitAngle(self,degrees):
         """ robot waits for the specified angle before executing the next command (CAB)"""
         anglHighVal, anglLowVal=toTwosComplement2Bytes( int(degrees) )
-      
+       
         # Send the command for data to the Create:
         self.__sendmsg(WAITANGLE,chr(anglHighVal)+chr(anglLowVal))
 
@@ -641,25 +715,25 @@ class Create:
             roombaMmSec = int(roombaMmSec)
         if type(roombaRadiusMm) != type(42):
             roombaRadiusMm = int(roombaRadiusMm)
-       
+        
         # we check that the inputs are within limits
         # if not, we cap them there
         if roombaMmSec < -500:
             roombaMmSec = -500
         if roombaMmSec > 500:
             roombaMmSec = 500
-       
+        
         # if the radius is beyond the limits, we go straight
         # it doesn't really seem to go straight, however...
         if roombaRadiusMm < -2000:
             roombaRadiusMm = 32768
         if roombaRadiusMm > 2000:
             roombaRadiusMm = 32768
-       
+        
         # get the two bytes from the velocity
         # these come back as numbers, so we will chr them
         velHighVal, velLowVal = toTwosComplement2Bytes( roombaMmSec )
-       
+        
         # get the two bytes from the radius in the same way
         # note the special cases
         if roombaRadiusMm == 0:
@@ -668,26 +742,55 @@ class Create:
             else: # default is 'CCW' (turning left)
                 roombaRadiusMm = 1
         radiusHighVal, radiusLowVal = toTwosComplement2Bytes( roombaRadiusMm )
-       
+        
         #print 'bytes are', velHighVal, velLowVal, radiusHighVal, radiusLowVal
-       
+        
         # send these bytes and set the stored velocities
         byteList = (velHighVal,velLowVal,radiusHighVal,radiusLowVal)
         if type(byteList) in (list, tuple, set):
             temp = ''
             for char in byteList:
-                temp += chr(char)       
+                temp += chr(char)        
         byteList = temp
         self.__sendmsg(DRIVE,byteList)
-        #self.ser.write( DRIVE )
-        #self.ser.write( chr(velHighVal) )
-        #self.ser.write( chr(velLowVal) )
-        #self.ser.write( chr(radiusHighVal) )
-        #self.ser.write( chr(radiusLowVal) )
+        #self.send( DRIVE )
+        #self.send( chr(velHighVal) )
+        #self.send( chr(velLowVal) )
+        #self.send( chr(radiusHighVal) )
+        #self.send( chr(radiusLowVal) )
 
-         
-#========================== SENSORS ==============================       
-   
+          
+#========================== SENSORS ==============================        
+
+    def sensorDataIsOK(self):
+        '''Detects data incoherency. Returns false if incoherent ("sensor junk").'''
+        # Attempting to reconnect or shutdown the robot from within this
+        # function didn't work. Solution is to call the function using syntax:
+        # if not robot.sensorDataIsOK():
+        #     robot.shutdown()
+        #     return (exit before calling other robot code.)
+           
+        time.sleep(1)
+        self.stop()
+        self.getSensor('DISTANCE')
+        distance = self.getSensor('DISTANCE')
+        #Both angle and distance should be ~0. If not, then the sensor was filled 
+        #with junk initially, so we reconnect. 
+        if abs(distance) > 10:
+            #self.reconnect(self.comPort)
+            time.sleep(1)
+            print("Sensors could not be validated.")
+            #self.shutdown()
+            return False
+        
+        return True
+
+    def setMaxSensorTimeout(self, newTimeout):
+        ''' Allows the user to wait longer for the robot 
+        to return sensor data to the computer. Each retry takes 50 ms.'''
+        self.maxSensorRetries = newTimeout / RETRY_SLEEP_TIME
+        self.maxSensorRetries = max(newTimeout, MIN_SENSOR_RETRIES)
+    
     def getSensor(self, sensorToRead):
         '''Reads the value of the requested sensor from the robot and returns it.'''
         # Send the request for data to the Create:
@@ -695,11 +798,25 @@ class Create:
         self.__sendmsg(COMMANDS["QUERY_LIST"],
                    chr(1) + SENSORS[sensorToRead].ID)
         # Receive the reply:
+
+        # MB: Added ability to retry in case a user is querying the sensors 
+        # while the robot is executing a wait command.
         msg = self.__recvmsg(SENSORS[sensorToRead].size)
+        nRetries = 0
+        while len(msg) < SENSORS[sensorToRead].size and nRetries < self.maxSensorRetries:
+            # Serial receive appears to block for 0.5 sec, so we don't
+            # need to sleep
+            msg = self.__recvmsg(SENSORS[sensorToRead].size)
+            nRetries += 1
+
+        #print nRetries, "retries needed"
+                    
+        # Last resort: return None and force the user to deal with it,
+        # rather than crashing.
         if len(msg) < SENSORS[sensorToRead].size:
-            raise CommunicationError("Improper sensor query response length: ")
-            self.close()
-            return
+            #raise CommunicationError("Improper sensor query response length: ")
+            #self.close()
+            return None
         msg_len = len(msg)
         sensor_bytes = [ord(b) for b in msg[0:msg_len]]
 
@@ -757,10 +874,10 @@ class Create:
 
     def startIR(self,byteValue):
         '''TODO: implement script send to begin sending passed value'''
-        """Uses a script so that the robot can receive and perform other
+        """Uses a script so that the robot can receive and perform other 
         commands concurrently. Alternative to threading. """
-        print "sending byte", byteValue
-  
+        print("sending byte", byteValue)
+   
         byteList = chr(3); #  # script has 3 bytes
         byteList += COMMANDS["SEND_IR"]
         byteList += chr(byteValue) # IR value
@@ -770,11 +887,11 @@ class Create:
 
     def stopIR(self):
         '''TO DO: send null script to end IR streaming'''
-        """Uses a script so that the robot can receive and perform other
+        """Uses a script so that the robot can receive and perform other 
         commands concurrently. Alternative to threading. """
         self.__sendmsg(DEFINE_SCRIPT, chr(0)) #define null script
-       
-#========================== LIGHTS ==================================   
+        
+#========================== LIGHTS ==================================    
     def setLEDs(self, powerColor, powerIntensity, play, advance ):
         """ The setLEDs method sets each of the three LEDs, from left to right:
             the power LED, the play LED, and the status LED.
@@ -783,7 +900,7 @@ class Create:
             power_intensity are values from 0 to 255. The other two LED inputs
             should either be 0 (off) or 1 (on).
         """
-       
+        
         # make sure we're within range...
         if advance != 0: advance = 1
         if play != 0: play = 1
@@ -793,31 +910,31 @@ class Create:
         except TypeError:
             power = 128
             powercolor = 128
-            print 'Type exception caught in setAbsoluteLEDs in roomba.py'
-            print 'Your powerColor or powerIntensity was not an integer.'
+            print('Type exception caught in setAbsoluteLEDs in roomba.py')
+            print('Your powerColor or powerIntensity was not an integer.')
         if power < 0: power = 0
         if power > 255: power = 255
         if powercolor < 0: powercolor = 0
         if powercolor > 255: powercolor = 255
         # create the first byte
         #firstByteVal = (status << 4) | (spot << 3) | (clean << 2) | (max << 1) | dirtdetect
-        firstByteVal =  (advance << 3) | (play << 1)
-       
+        firstByteVal =  (advance << 3) | (play << 1) 
+        
         # send these as bytes
         # print 'bytes are', firstByteVal, powercolor, power
-        self.ser.write( LEDS )
-        self.ser.write( chr(firstByteVal) )
-        self.ser.write( chr(powercolor) )
-        self.ser.write( chr(power) )
-       
+        self.send( LEDS )
+        self.send( chr(firstByteVal) )
+        self.send( chr(powercolor) )
+        self.send( chr(power) )
+        
         return
 
-#==================== DEMOS ======================    
+#==================== DEMOS ======================     
     def seekDock(self):
         """sends the force-seeking-dock signal """
         self.demo(1)
 
-   
+    
     def demo(self, demoNumber=-1):
         """ runs one of the built-in demos for Create
             if demoNumber is
@@ -840,15 +957,15 @@ class Create:
         """
         if (demoNumber < -1 or demoNumber > 9):
             demoNumber = -1 # stop current demo
-       
-        self.ser.write( DEMO )
+        
+        self.send( DEMO )
         if demoNumber < 0 or demoNumber > 9:
             # invalid values are equivalent to stopping
-            self.ser.write( chr(255) ) # -1
+            self.send( chr(255) ) # -1
         else:
-            self.ser.write( chr(demoNumber) )
+            self.send( chr(demoNumber) )
 
-#==================== MUSIC ======================    
+#==================== MUSIC ======================     
     def setSong(self, songNumber, noteList):
         """ this stores a song to roomba's memory to play later
            with the playSong command
@@ -860,53 +977,53 @@ class Create:
         """
         # any notes to play?
         if type(noteList) != type([]) and type(noteList) != type(()):
-            print 'noteList was', noteList
-            return
-           
+            print('noteList was', noteList)
+            return 
+            
         if len(noteList) < 1:
-            print 'No data in the noteList'
+            print('No data in the noteList')
             return
-       
+        
         if songNumber < 0: songNumber = 0
         if songNumber > 15: songNumber = 15
-       
+        
         # indicate that a song is coming
-        self.ser.write( SONG )
-        self.ser.write( chr(songNumber) )
-       
+        self.send( SONG )
+        self.send( chr(songNumber) )
+        
         L = min(len(noteList), 16)
-        self.ser.write( chr(L) )
-       
+        self.send( chr(L) )
+        
         # loop through the notes, up to 16
         for note in noteList[:L]:
             # make sure its a tuple, or else we rest for 1/4 second
             if type(note) == type( () ):
                 #more error checking here!
-                self.ser.write( chr(note[0]) )  # note number
-                self.ser.write( chr(note[1]) )  # duration
+                self.send( chr(note[0]) )  # note number
+                self.send( chr(note[1]) )  # duration
             else:
-                self.ser.write( chr(30) )   # a rest note
-                self.ser.write( chr(16) )   # 1/4 of a second
-               
+                self.send( chr(30) )   # a rest note
+                self.send( chr(16) )   # 1/4 of a second
+                
         return
-       
+        
     def playSong(self, noteList):
         """ The input to <tt>playSong</tt> should be specified as a list
-            of pairs of ( note_number, note_duration ) format. Thus,
+            of pairs of ( note_number, note_duration ) format. Thus, 
             r.playSong( [(60,8),(64,8),(67,8),(72,8)] ) plays a quick C chord.
         """
         # implemented by setting song #1 to the notes and then playing it
         self.setSong(1, noteList)
         self.playSongNumber(1)
-   
+    
     def playSongNumber(self, songNumber):
         """ plays song songNumber """
         if songNumber < 0: songNumber = 0
         if songNumber > 15: songNumber = 15
-       
-        self.ser.write( PLAY )
-        self.ser.write( chr(songNumber) )
-   
+        
+        self.send( PLAY )
+        self.send( chr(songNumber) )
+    
     def playNote(self, noteNumber, duration, songNumber=0):
         """ plays a single note as a song (at songNumber)
             duration is in 64ths of a second (1-255)
@@ -916,7 +1033,7 @@ class Create:
         self.setSong(songNumber, [(noteNumber,duration)])
         self.playSongNumber(songNumber)
 
-#==================== Modes ======================   
+#==================== Modes ======================    
     def toSafeMode(self):
         """ changes the state (from PASSIVE_MODE or FULL_MODE)
             to SAFE_MODE
@@ -924,14 +1041,14 @@ class Create:
         self.start()
         time.sleep(0.03)
         # now we're in PASSIVE_MODE, so we repeat the above code...
-        self.ser.write( SAFE )
+        self.send( SAFE )
         # they recommend 20 ms between mode-changing commands
         time.sleep(0.03)
         # change the mode we think we're in...
         self.sciMode = SAFE_MODE
         # no response here, so we don't get any...
         return
-   
+    
     def toFullMode(self):
         """ changes the state from PASSIVE to SAFE to FULL_MODE
         """
@@ -939,17 +1056,17 @@ class Create:
         time.sleep(0.03)
         self.toSafeMode()
         time.sleep(0.03)
-        self.ser.write( FULL )
+        self.send( FULL )
         time.sleep(0.03)
         self.sciMode = FULL_MODE
-       
-        return    
-   
+        
+        return     
+    
     #==================== Class Level Math functions =============
     def _getButtonBits( self, r ):
         """ r is one byte as an integer """
         return [ bitOfByte(2,r), bitOfByte(0,r) ]
-   
+    
     def _getLower5Bits( self, r ):
         """ r is one byte as an integer """
         return [ bitOfByte(4,r), bitOfByte(3,r), bitOfByte(2,r), bitOfByte(1,r), bitOfByte(0,r) ]
@@ -958,7 +1075,7 @@ class Create:
         """ r is one byte as an integer """
         if r == 1:  return 1
         else:       return 0
-    
+     
     def _getOneByteSigned( self, r ):
         """ r is one byte as a signed integer """
         return twosComplementInt1byte( r )
@@ -966,7 +1083,7 @@ class Create:
     def _getOneByteUnsigned( self, r ):
         """ r is one byte as an integer """
         return r
-   
+    
     def _getTwoBytesSigned( self, r1, r2 ):
         """ r1, r2 are two bytes as a signed integer """
         return twosComplementInt2bytes( r1, r2 )
@@ -974,29 +1091,29 @@ class Create:
     def _getTwoBytesUnsigned( self, r1, r2 ):
         """ r1, r2 are two bytes as an unsigned integer """
         return r1 << 8 | r2
-       
+        
     def _rawSend( self, listofints ):
         for x in listofints:
-            self.ser.write( chr(x) )
-   
+            self.send( chr(x) )
+    
     def _rawRecv( self ):
         nBytesWaiting = self.ser.inWaiting()
         #print 'nBytesWaiting is', nBytesWaiting
-        r = self.ser.read(size=nBytesWaiting)
+        r = self.read(nBytesWaiting)
         r = [ ord(x) for x in r ]
         #print 'r is', r
         return r
-   
+    
     def _rawRecvStr( self ):
         nBytesWaiting = self.ser.inWaiting()
         #print 'nBytesWaiting is', nBytesWaiting
-        r = self.ser.read(size=nBytesWaiting)
+        r = self.ser.read(nBytesWaiting)
         return r
 
     def getMode(self):
         """ returns one of OFF_MODE, PASSIVE_MODE, SAFE_MODE, FULL_MODE """
         # but how right is it?
         return self.sciMode
-   
+    
 if __name__ == '__main__':
     displayVersion()

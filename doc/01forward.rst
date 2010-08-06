@@ -3,18 +3,15 @@
 What is Create?
 ===============
 
-iRobot Create is a mobile robot platform.
+iRobot `Create <http://www.irobot.com/create/>`_ is a mobile robot platform.
 
 Why use Create?
 ===============
 
-Create is preassembled and ready to use.  iRobot provides a documented open serial interface called, "iRobot Create Open Interface."  A Python implementation of iRobot's open interface protocol for the Create platform is available with sample programs.  The Create platform is used from middle school through university in training.  The manufacture sponsors various robotic competitions.
+Create is preassembled and ready to use.  iRobot provides a documented open serial interface called, "iRobot Create Open Interface."  Several Python implementations of iRobot's open interface protocol for the Create platform are available.
 
 Resouces
 ========
 
-* http://botball.org/
-* http://createforums.irobot.com/irobotcreate/
-* http://spark.irobot.com/
-* http://www.nationalroboticsweek.org/
+* http://www.rose-hulman.edu/class/csse/resources/Robotics/
 * http://roboticsprimer.sourceforge.net/workbook/Main_Page
