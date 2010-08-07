@@ -1,6 +1,0 @@
-Pycreate is a Python implementation of the iRobot Create Open Interface.
-
-Requirements:
-
-        * Python >= 3.0
-        * PySerial >= 1.0
