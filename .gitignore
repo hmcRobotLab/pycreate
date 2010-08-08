@@ -1,5 +1,7 @@
 *.pyc
 *.sqlite
+*.html
+*.pdf
 build
 dist
 bin
