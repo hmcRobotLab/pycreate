@@ -61,16 +61,16 @@ Change into the directory with create.py::
 
     $ cd pycreate
 
-Start Python (load the python interpreter into memory)::    
+Start Python and verify functionality::    
 
     $ python
 
     >>> import create    # load the create module into memory
     >>> r = create.Create('/dev/ttyUSB0')  # make serial connection, assign object to r
     >>> r.go( -5 )       # move at -5 cm/second, backwards
-    >>> r.go( 0 )        # stops the create
+    >>> r.stop()         # stops the create
     >>> r.go( 0, 10 )    # 0 cm/sec translational velocity and 10 deg/sec rotational
-    >>> r.stop( )        # another way to stop, wrapper for go( 0 )
+    >>> r.stop( )        # stops the create
     >>> r.getSensor('ANGLE')  # reads the current value of angle sensor from robot
     107                  # and returns it
     >>> r.getSensor('DISTANCE') # reads the current value of distance sensor from robot
