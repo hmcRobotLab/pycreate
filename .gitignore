@@ -1,9 +1,4 @@
 *.pyc
-*.sqlite
 *.html
 *.pdf
-build
-dist
-bin
-parts
-local_settings.py
+*.swp
