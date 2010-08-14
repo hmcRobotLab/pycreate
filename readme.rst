@@ -18,7 +18,6 @@ Requirements
 Resouces
 
 * http://www.rose-hulman.edu/class/csse/resources/Robotics/
-* http://roboticsprimer.sourceforge.net/workbook/Main_Page
 
 Hardware
 ========
@@ -86,6 +85,3 @@ Music::
 Appendix
 ========
 
-Sim setup:
-
-Sim runtime:

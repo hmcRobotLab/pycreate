@@ -1,39 +1,39 @@
-import sys
-import time
 import create
 
 SERIAL_PORT = "/dev/ttyUSB0"
-SLIST = ["WALL","CLIFF_LEFT","CLIFF_RIGHT","DISTANCE","ANGLE"]
+bumpAndWheelDropKeys = ['WHEELDROP_CASTER (0 = wheel raised, 1 = wheel dropped)','WHEELDROP_LEFT (0 = wheel raised, 1 = wheel dropped)','WHEELDROP_RIGHT (0 = wheel raised, 1 = wheel dropped)','BUMP_LEFT (0 no bump, 1 bump)','BUMP_RIGHT (0 = no bump, 1 = bump)']
 
-def shutdown( r ):
-    """ stop robot and close serial port """
-    r.drive( (0,0) )   # stops
-    time.sleep(0.5)
-    r.shutdown()       # closes port
-    time.sleep(0.5)
+r = create.Create( SERIAL_PORT )
+bumpAndWheelDropValues = r.getSensor('BUMPS_AND_WHEEL_DROPS')
 
-if __name__ == "__main__":
+sensorDictionary  = dict(zip(bumpAndWheelDropKeys, bumpAndWheelDropValues))
 
-    r = create.Create( SERIAL_PORT )
-    r.start()
-    r.toSafeMode()
-    
-    try:
- 
-        for i in SLIST:
-            data = r.getSensor(i)
-            print i, "=", data
+keys = list(sensorDictionary.keys())
+keys.sort()
 
-        shutdown( r )
-        time.sleep(0.5)
-        print "quitting..."
-        sys.exit()
+for k in keys:
+    print(k, ' = ',sensorDictionary[k])
 
-    except:
-        print "Unexpected error caught - shutting down."
-        shutdown( r )
-        print "Shutdown complete."
-        time.sleep(0.5);
-        raise   # re-establishing the exception...
-        # raising the exception will make the shell print out
-        # error and the line number - important for debugging!
+
+############## NOTES ######################
+
+SLIST = ["VOLTAGE","BATTERY_TEMPERATURE","CURRENT","DISTANCE","ANGLE"]
+wheelDropCaster = r.getSensor('BUMPS_AND_WHEEL_DROPS')[0]
+for i in SLIST:
+    data = r.getSensor(i)
+    print i, "=", data
+
+for item in bumpsAndWheelDrops:
+    for data in sList:    
+    print( item," = ",data )
+for element in [(1, 4), (2, 5), (3, 6)]:
+    k, v = element
+    print( k," = ",v)
+
+dict_as_list = [(1, 4), (2, 5), (3, 6)]
+d2 = {500: 2000, 1: 'a', 2: 'b', 3: 'c'}
+sensorDictionary  = dict(dict_as_list, 100=4, 900=5)
+sensorDictionary.update(dict_to_add)
+sensorDictionary.update(dict_to_add2)
+x = {'a': 1, 'b': 2, 'c': 3}
+y = {"server":500, "database":600}
