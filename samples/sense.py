@@ -1,39 +1,113 @@
 import create
 
+# assign robot object to r
 SERIAL_PORT = "/dev/ttyUSB0"
-bumpAndWheelDropKeys = ['WHEELDROP_CASTER (0 = wheel raised, 1 = wheel dropped)','WHEELDROP_LEFT (0 = wheel raised, 1 = wheel dropped)','WHEELDROP_RIGHT (0 = wheel raised, 1 = wheel dropped)','BUMP_LEFT (0 no bump, 1 bump)','BUMP_RIGHT (0 = no bump, 1 = bump)']
-
 r = create.Create( SERIAL_PORT )
-bumpAndWheelDropValues = r.getSensor('BUMPS_AND_WHEEL_DROPS')
 
-sensorDictionary  = dict(zip(bumpAndWheelDropKeys, bumpAndWheelDropValues))
+# list of bump_and_wheel_drop keys
+BUMP_AND_WHEEL_DROP_KEYS = [
+  'WHEELDROP_CASTER',
+  'WHEELDROP_LEFT',
+  'WHEELDROP_RIGHT',
+  'BUMP_LEFT',
+  'BUMP_RIGHT'
+]
 
-keys = list(sensorDictionary.keys())
+# list of bump_and _wheel_drop values
+BUMP_AND_WHEEL_DROP_VALUES = r.getSensor('BUMPS_AND_WHEEL_DROPS')
+
+# sensor dictionary of bump_and_wheel_drop keys and values
+SENSORDICT = dict(zip(BUMP_AND_WHEEL_DROP_KEYS, BUMP_AND_WHEEL_DROP_VALUES))
+
+# list of sensor keys that have a single return value
+SENSORKEYS = [
+    'CLIFF_LEFT_SIGNAL',
+    'CLIFF_FRONT_LEFT_SIGNAL',
+    'CLIFF_FRONT_RIGHT_SIGNAL',
+    'CLIFF_RIGHT_SIGNAL',
+    'WALL_SIGNAL',
+    'DISTANCE',
+    'ANGLE',
+    'IR_BYTE',
+    'VOLTAGE',
+    'OI_MODE',
+    'SONG_PLAYING',
+    'SONG_NUMBER',
+    'VIRTUAL_WALL',
+    'CHARGING_STATE',
+    'CURRENT',
+    'BATTERY_TEMPERATURE',
+    'BATTERY_CHARGE',
+    'BATTERY_CAPACITY',
+    'NUMBER_OF_STREAM_PACKETS',
+    'CHARGING_SOURCES_AVAILABLE',
+    'WALL',
+    'CLIFF_LEFT',
+    'CLIFF_FRONT_LEFT',
+    'CLIFF_FRONT_RIGHT',
+    'CLIFF_RIGHT',
+    'VELOCITY',
+    'RADIUS',
+    'RIGHT_VELOCITY',
+    'LEFT_VELOCITY'
+]
+
+# list of sensor values associated with sensor keys
+SENSORVALUES = []
+for sensor in SENSORKEYS:
+    value = r.getSensor(sensor)
+    SENSORVALUES.append(value)
+
+# add sensor key and value to the sensor dictionary 
+SENSORDICT1  = dict(zip(SENSORKEYS, SENSORVALUES))
+SENSORDICT.update(SENSORDICT1)
+
+# list of button keys
+BUTTON_KEYS = [
+  'BUTTON_ADVANCE',
+  'BUTTON_PLAY'
+]
+
+# list of button values
+BUTTON_VALUES = r.getSensor('BUTTONS')
+
+# sensor dictionary of bump_and_wheel_drop keys and values
+SENSORDICT2 = dict(zip(BUTTON_KEYS, BUTTON_VALUES))
+SENSORDICT.update(SENSORDICT2)
+
+# list of overcurrent keys
+OVERCURRENT_KEYS = [
+    'LEFT_WHEEL',
+    'RIGHT_WHEEL',
+    'LD_2',
+    'LD_0',
+    'LD_1'
+]
+
+# list of overcurrent values
+OVERCURRENT_VALUES = r.getSensor('OVERCURRENTS') 
+
+# sensor dictionary of overcurrent keys and values 
+SENSORDICT3 = dict(zip(OVERCURRENT_KEYS, OVERCURRENT_VALUES))
+SENSORDICT.update(SENSORDICT3)
+
+# list of charging source keys ### this only returned one value, docs incorrect? ###
+#CHARGING_SOURCE_KEYS = [
+#    'HOME_BASE',
+#    'INTERNAL_CHARGER'
+#]
+
+# list of charging source values
+#CHARGING_SOURCE_VALUES = r.getSensor('CHARGING_SOURCES_AVAILABLE')
+
+# sensor dictionary of charging source keys and values 
+#SENSORDICT4 = dict(zip(CHARGING_SOURCE_KEYS, CHARGING_SOURCE_VALUES))
+#SENSORDICT.update(SENSORDICT4)
+
+# Display the sensor dictionary
+keys = list(SENSORDICT.keys())
 keys.sort()
-
 for k in keys:
-    print(k, ' = ',sensorDictionary[k])
+    print(k, ' = ',SENSORDICT[k])
 
-
-############## NOTES ######################
-
-SLIST = ["VOLTAGE","BATTERY_TEMPERATURE","CURRENT","DISTANCE","ANGLE"]
-wheelDropCaster = r.getSensor('BUMPS_AND_WHEEL_DROPS')[0]
-for i in SLIST:
-    data = r.getSensor(i)
-    print i, "=", data
-
-for item in bumpsAndWheelDrops:
-    for data in sList:    
-    print( item," = ",data )
-for element in [(1, 4), (2, 5), (3, 6)]:
-    k, v = element
-    print( k," = ",v)
-
-dict_as_list = [(1, 4), (2, 5), (3, 6)]
-d2 = {500: 2000, 1: 'a', 2: 'b', 3: 'c'}
-sensorDictionary  = dict(dict_as_list, 100=4, 900=5)
-sensorDictionary.update(dict_to_add)
-sensorDictionary.update(dict_to_add2)
-x = {'a': 1, 'b': 2, 'c': 3}
-y = {"server":500, "database":600}
+r.shutdown()

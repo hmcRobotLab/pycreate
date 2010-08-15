@@ -22,27 +22,27 @@ Resouces
 Hardware
 ========
 
-Any one of these four options work well depending on your needs:
+Choose any of these four options to get started:
 
 #. Teather: Create and computer directly connected with wire. (serial 9pin to usb or rs232)
 #. Teather and wireless: Above setup with an additional computer and 802.11 network
 #. Wireless: Create and computer wireless connection via bluetooth network
 #. Simulator: Computer with create software environment and without the create hardware
 
-After choosing one of the four options above, its time to get started (see Appendix for Simulator):
+After choosing an above option, its time to get started (see Resources for Simulator):
 
-* Power up robot on open floor space and verify green led
-* Make physical and/or wireless connection to robot from computer
-* From computer determine serial port name connected to robot.  Python needs this variable to open the serial connection::
+* Power up robot on floor and verify green led
+* Make physical and/or wireless connection between robot and computer
+* Determine serial port name used to connect to robot::
 
-    $ ls /dev/tty <tab>
+    $ ls /dev/tty <tab>  # python needs this variable to open the serial connection
     /dev/ttyUSB0         # my serial port name associated with create, yours may differ
 
-* Open serial port for communication between robot and computer with Python (see below).
+* Open serial port for communication between robot and computer with create.py module (see below).
 
 Software
 ========
-Clone the latest software to your computer, start and setup python to see create.py::
+Setup environment by setting appropriate PYTHONPATH, cloning the latest pycreate software to your computer, and starting python3.1::
 
     $ echo "export PYTHONPATH=/home/mgobryan/pycreate" >> ~/.bashrc
     $ source ~/.bashrc
@@ -80,8 +80,9 @@ Music::
 
     >>> r.playSong( [(60,8),(64,8),(67,8),(72,8)] )
     >>> r.shutdown()     # stops, then closes the connection to the robot
-    >>> <CTRL> D
+    >>> <CTRL> d         # closes interactive python interpreter
 
 Appendix
 ========
+
 
