@@ -91,19 +91,6 @@ OVERCURRENT_VALUES = r.getSensor('OVERCURRENTS')
 SENSORDICT3 = dict(zip(OVERCURRENT_KEYS, OVERCURRENT_VALUES))
 SENSORDICT.update(SENSORDICT3)
 
-# list of charging source keys ### this only returned one value, docs incorrect? ###
-#CHARGING_SOURCE_KEYS = [
-#    'HOME_BASE',
-#    'INTERNAL_CHARGER'
-#]
-
-# list of charging source values
-#CHARGING_SOURCE_VALUES = r.getSensor('CHARGING_SOURCES_AVAILABLE')
-
-# sensor dictionary of charging source keys and values 
-#SENSORDICT4 = dict(zip(CHARGING_SOURCE_KEYS, CHARGING_SOURCE_VALUES))
-#SENSORDICT.update(SENSORDICT4)
-
 # Display the sensor dictionary
 keys = list(SENSORDICT.keys())
 keys.sort()

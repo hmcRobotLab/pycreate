@@ -42,7 +42,7 @@ After choosing an above option, its time to get started (see Resources for Simul
 
 Software
 ========
-Setup environment by setting appropriate PYTHONPATH, cloning the latest pycreate software to your computer, and starting python3.1::
+Set appropriate PYTHONPATH, clone pycreate to your home directory, and start python3.1::
 
     $ echo "export PYTHONPATH=/home/mgobryan/pycreate" >> ~/.bashrc
     $ source ~/.bashrc
@@ -55,7 +55,7 @@ Setup environment by setting appropriate PYTHONPATH, cloning the latest pycreate
 Move::
 
     >>> r.go( -5 )       # move at -5 cm/second, backwards
-    >>> r.stop()         # stops the create
+    >>> r.stop( )        # stops the create
     >>> r.go( 0, 10 )    # 0 cm/sec translational velocity and 10 deg/sec rotational
     >>> r.stop( )        # stops the create
 
@@ -85,4 +85,14 @@ Music::
 Appendix
 ========
 
+Pygame install with python3.1::
 
+    $ sudo apt-get install python3.1-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsdl1.2-dev libsmpeg-dev libportmidi-dev
+    $ svn co svn://seul.org/svn/pygame/trunk pygame
+    $ cd pygame/
+    $ python3.1 setup.py build
+    $ sudo python3.1 setup.py install
+
+Leds.py::
+
+    $ python3.1 samples/leds.py
