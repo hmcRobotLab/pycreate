@@ -15,9 +15,15 @@ Requirements
     $ cd pyserial-2.5/
     $ sudo python3.1 setup.py install
 
+* TkInter::
+
+    $ sudo apt-get install python3.1-tk
+
 Resouces
 
 * http://www.rose-hulman.edu/class/csse/resources/Robotics/
+* http://mcsp.wartburg.edu/zelle/python/
+* http://books.google.com/books?id=aJQILlLxRmAC&dq=John+Zelle%E2%80%99s+Graphics+Library+for+Python&printsec=frontcover&source=bn&hl=en&ei=cWp4TIyMG4S8lQf3wIG0Cg&sa=X&oi=book_result&ct=result&resnum=4&ved=0CCIQ6AEwAw#v=onepage&q&f=false
 
 Hardware
 ========
@@ -38,7 +44,7 @@ After choosing an above option, its time to get started (see Resources for Simul
     $ ls /dev/tty <tab>  # python needs this variable to open the serial connection
     /dev/ttyUSB0         # my serial port name associated with create, yours may differ
 
-* Open serial port for communication between robot and computer with create.py module (see below).
+* Open serial port between robot and computer with create.py module (see below).
 
 Software
 ========
@@ -48,16 +54,9 @@ Set appropriate PYTHONPATH, clone pycreate to your home directory, and start pyt
     $ source ~/.bashrc
     $ cd ~
     $ git clone git://github.com/mgobryan/pycreate
-    $ python3.1
+    $ python3.1          # start python
     >>> import create    # load the create module into memory
     >>> r = create.Create('/dev/ttyUSB0')  # open serial connection, assign object to r
-
-Move::
-
-    >>> r.go( -5 )       # move at -5 cm/second, backwards
-    >>> r.stop( )        # stops the create
-    >>> r.go( 0, 10 )    # 0 cm/sec translational velocity and 10 deg/sec rotational
-    >>> r.stop( )        # stops the create
 
 Sense::
 
@@ -71,19 +70,70 @@ Light::
     >>> r.setLEDs(0, 255, 1, 1)   # Green, Bright, Green, Green
     >>> r.setLEDs(255, 255, 0, 0) # Red, Bright, Off, Off
 
-Demo::
-
-    >>> r.demo(0)        # starts wander demo, other demos 1 - 9
-    >>> r.demo()         # stops demo
-
 Music::
 
-    >>> r.playSong( [(60,8),(64,8),(67,8),(72,8)] )
+    >>> r.playSong( [(60,8),(64,8),(67,8),(72,8)] ) # a C chord
+
+Move::
+
+    >>> r.go(-5)         # move at -5 cm/second, backwards
+    >>> r.stop()         # stops the create
+    >>> r.go(0, 10)      # 0 cm/sec translational velocity and 10 deg/sec rotational
     >>> r.shutdown()     # stops, then closes the connection to the robot
-    >>> <CTRL> d         # closes interactive python interpreter
+
+Graphic::
+
+    >>> import graphics  # load the graphics module into memory
+    >>> win = graphics.GraphWin("Me", 100, 100) # open a 100x100 window
+    >>> win.close()      # close the window
+    >>> <CTRL> d         # closes python interpreter
 
 Appendix
 ========
+
+songAndDance.py
+***************
+A function songAndDance to cause the robot to do some simple actions: first play a distinctive sound as a warning sound. After the sound stops, have robot do a little dance. Include angular and linear motion, but stay roughly within a 50 cm radius of its start point. Include some sort of repeated motion that you code using a loop.
+
+wander.py
+********* 
+A function wander() that drives the robot in a random motion to explore an environment. The wander() function has three parameters, the robot, and linear and angular velocity. The parameters should be in the following order:
+
+   1. robot
+   2. [optional] Linear Velocity in cm/s, default = 15
+   3. [optional] Angular Velocity in deg/s, default = 20
+
+Select a random angle between or including -180 and 180 degrees (via randrange), turn the robot that much, select a random distance between 10 and 30 cm, and move the robot forward that much. Be sure that the sign on your velocities and distances are the same. Also make sure that when you calculate how long to sleep, you allow the answer to be a float. Repeat this random sequence of turn+drive 5 times or until its cliff sensor is triggered (i.e. pick it up) and use the go() method.
+
+smartWander.py
+**************
+smartWander() should cause the robot to wander around randomly (turn then move, repeated 5 times), as it did for wander(), but also move away from any obstacles into which it bumps. Specifically: 1. move for random angles between -180 and 180 degrees, and distances between 10 and 30 cm. Reminder: be sure that the sign on your velocities and distances are the same. Also, do NOT use wait_Angle() or wait_Distance() (or turnTo() or moveTo() which use them), since they monopolize the serial port, which you need for sensor data. Therefore, you will have to use go() and stop() and calculate how long to sleep manually.  2. If the robot runs straight into an obstacle (left and right bumpers sensed), then back up. Choose a sensible distance to back up: enough to get away from the obstacle, but not enough to back up into another obstacle. You may then go on to the next random turn and move (in other words, you don't have to try to complete the move that was blocked).  3. If the robot runs into an obstacle at an angle such that only the left bumper senses it, then backup and turn clockwise (for your sensible choice of an angle). Then execute the next random turn and move.  4. If the robot runs into an obstacle at an angle such that only the right bumper senses it, then backup and turn counter-clockwise (for your sensible choice of an angle). Then execute the next random turn and move.
+
+via.py
+******
+Drive the robot through an environment using moves to via points stored in a file. Use feedback from the encoders to drive a certain distance. An encoder is a mechanical device attached the robot's wheels to measure how far it has traveled.  Prompt the user for the file name and open the file with that name.   Read each line of the file. Each line will contain 4 values (turn_angle_in_deg, turn_speed, fwd_distance_in_cm, fwd_velocity).  For each line, turn the robot based upon the turn angle and speed, then drive the robot forward based upon the forward distance and velocity. 
+
+kittLights.py
+*************
+a function kittLights() that takes two parameters: the robot and numRepeats, and turns on the robot’s power, play and advance lights. The sequence shown should repeat numRepeats times and have different colors on the power led.
+
+cliffSensors.py
+***************
+a function cliffSensors() requires you to read four sensors and control two LED actuators:
+
+    * The front left and front right cliff sensors as an analog values
+    * The left and right bumpers as digital values (to determine the program end)
+    * The Play and Advance LEDs
+
+Read the front left and front right cliff sensors while moving a black line below the sensors.  Print out the black line PDF and use it for testing.  The location of the black line controls the state of the Play and Advance LEDs.
+
+When the black line is below the front right cliff sensor the Play LED should be off.  When the black line is below the left cliff sensor the Advance LED should be off.  When the black line is not below the sensor the corresponding LED should be on.
+
+In addition to the LEDs, print out the value of the analog sensor to the computer display using print.  In fact you should probably do the printing part first!  Since you will need to know where to set the threshold value to decide when the black line is present or absent for the LEDs, you will need to know the range of light and dark values.  The values of both sensors should print to the screen every 0.1 seconds using a well formatted print message.  For my program it was simply: Cliff Sensors FL = 80 FR = 720.  This line was taken while the black line was below the Front Left Cliff Sensor.  Make note of what the white and black values are for your program for each sensor.  The printing of the cliff sensor values and controlling of the LEDs should continue inside a while loop until the user pushes either the left or right bumper.  When a bumper press is observed the program should shutdown the robot and print a Goodbye message to the screen.
+
+Leds.py::
+
+    $ python3.1 samples/leds.py
 
 Pygame install with python3.1::
 
@@ -92,7 +142,3 @@ Pygame install with python3.1::
     $ cd pygame/
     $ python3.1 setup.py build
     $ sudo python3.1 setup.py install
-
-Leds.py::
-
-    $ python3.1 samples/leds.py
