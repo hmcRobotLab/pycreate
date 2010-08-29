@@ -131,9 +131,13 @@ When the black line is below the front right cliff sensor the Play LED should be
 
 In addition to the LEDs, print out the value of the analog sensor to the computer display using print.  In fact you should probably do the printing part first!  Since you will need to know where to set the threshold value to decide when the black line is present or absent for the LEDs, you will need to know the range of light and dark values.  The values of both sensors should print to the screen every 0.1 seconds using a well formatted print message.  For my program it was simply: Cliff Sensors FL = 80 FR = 720.  This line was taken while the black line was below the Front Left Cliff Sensor.  Make note of what the white and black values are for your program for each sensor.  The printing of the cliff sensor values and controlling of the LEDs should continue inside a while loop until the user pushes either the left or right bumper.  When a bumper press is observed the program should shutdown the robot and print a Goodbye message to the screen.
 
+sense.py::
+
+    $ python3 samples/sense.py
+
 Leds.py::
 
-    $ python3.1 samples/leds.py
+    $ python3 samples/leds.py
 
 Pygame install with python3.1::
 

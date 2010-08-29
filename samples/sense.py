@@ -1,26 +1,31 @@
 import create
+import time
 
-# assign robot object to r
 SERIAL_PORT = "/dev/ttyUSB0"
 r = create.Create( SERIAL_PORT )
 
-# list of bump_and_wheel_drop keys
-BUMP_AND_WHEEL_DROP_KEYS = [
-  'WHEELDROP_CASTER',
-  'WHEELDROP_LEFT',
-  'WHEELDROP_RIGHT',
-  'BUMP_LEFT',
-  'BUMP_RIGHT'
-]
+def sensor_dict_list(sensor_list, sensor_list_keys):
+    """Obtain sensor values returned as list."""
+    values_list = r.getSensor(sensor_list)
+    time.sleep(.015)
+    sensor_dict = dict(zip(sensor_list_keys, values_list))
+    return sensor_dict
+    
+def sensor_dict_int(sensor_keys):
+    """Obtain sensor values returned as integers."""
+    sensor_values  = [r.getSensor(sensor) for sensor in sensor_keys]
+    time.sleep(.015)
+    sensor_dict = dict(zip(sensor_keys, sensor_values))
+    return sensor_dict
 
-# list of bump_and _wheel_drop values
-BUMP_AND_WHEEL_DROP_VALUES = r.getSensor('BUMPS_AND_WHEEL_DROPS')
-
-# sensor dictionary of bump_and_wheel_drop keys and values
-SENSORDICT = dict(zip(BUMP_AND_WHEEL_DROP_KEYS, BUMP_AND_WHEEL_DROP_VALUES))
+def sensor_print(sensor_dict):
+    keys = list(sensor_dict.keys())
+    keys.sort()
+    for k in keys:
+        print(k, ' = ',sensor_dict[k])
 
 # list of sensor keys that have a single return value
-SENSORKEYS = [
+SENSOR_KEYS = [
     'CLIFF_LEFT_SIGNAL',
     'CLIFF_FRONT_LEFT_SIGNAL',
     'CLIFF_FRONT_RIGHT_SIGNAL',
@@ -52,30 +57,19 @@ SENSORKEYS = [
     'LEFT_VELOCITY'
 ]
 
-# list of sensor values associated with sensor keys
-SENSORVALUES = []
-for sensor in SENSORKEYS:
-    value = r.getSensor(sensor)
-    SENSORVALUES.append(value)
+BUMP_AND_WHEEL_DROP_KEYS = [
+  'WHEELDROP_CASTER',
+  'WHEELDROP_LEFT',
+  'WHEELDROP_RIGHT',
+  'BUMP_LEFT',
+  'BUMP_RIGHT'
+]
 
-# add sensor key and value to the sensor dictionary 
-SENSORDICT1  = dict(zip(SENSORKEYS, SENSORVALUES))
-SENSORDICT.update(SENSORDICT1)
-
-# list of button keys
 BUTTON_KEYS = [
   'BUTTON_ADVANCE',
   'BUTTON_PLAY'
 ]
 
-# list of button values
-BUTTON_VALUES = r.getSensor('BUTTONS')
-
-# sensor dictionary of bump_and_wheel_drop keys and values
-SENSORDICT2 = dict(zip(BUTTON_KEYS, BUTTON_VALUES))
-SENSORDICT.update(SENSORDICT2)
-
-# list of overcurrent keys
 OVERCURRENT_KEYS = [
     'LEFT_WHEEL',
     'RIGHT_WHEEL',
@@ -84,17 +78,12 @@ OVERCURRENT_KEYS = [
     'LD_1'
 ]
 
-# list of overcurrent values
-OVERCURRENT_VALUES = r.getSensor('OVERCURRENTS') 
-
-# sensor dictionary of overcurrent keys and values 
-SENSORDICT3 = dict(zip(OVERCURRENT_KEYS, OVERCURRENT_VALUES))
-SENSORDICT.update(SENSORDICT3)
-
-# Display the sensor dictionary
-keys = list(SENSORDICT.keys())
-keys.sort()
-for k in keys:
-    print(k, ' = ',SENSORDICT[k])
-
+sensor_dict = sensor_dict_int(SENSOR_KEYS)
+sensor_dict_add = sensor_dict_list('BUMPS_AND_WHEEL_DROPS', BUMP_AND_WHEEL_DROP_KEYS)
+sensor_dict.update(sensor_dict_add)
+sensor_dict_add = sensor_dict_list('BUTTONS', BUTTON_KEYS)
+sensor_dict.update(sensor_dict_add)
+sensor_dict_add = sensor_dict_list('OVERCURRENTS', OVERCURRENT_KEYS)
+sensor_dict.update(sensor_dict_add)
+sensor_print(sensor_dict)
 r.shutdown()
