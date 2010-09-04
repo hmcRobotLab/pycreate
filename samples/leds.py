@@ -1,25 +1,48 @@
-import create
+"""LED control for irobot create."""
+
 import time
+import create
 
 SERIAL_PORT = "/dev/ttyUSB0"
-r = create.Create( SERIAL_PORT ) # create robot object
 
-for i in [1,1,1,1]:
-    r.setLEDs(0, 255, 0, 0) # powerColor, powerIntensity, play, advance
-    time.sleep(.2)
-    r.setLEDs(0, 255, i, 0)
-    time.sleep(.2)
-    r.setLEDs(0, 255, i, i)
-    time.sleep(.2)
-    r.setLEDs(0, 0, 0, 0)
-    time.sleep(.2)
+def kitt_lights(r, num_repeats=4):
+    """Imitate Knight Rider LEDs.
 
-for i in 'four':
-    for i in range(0, 256):
-        r.setLEDs(0 + i, i, i, i)
-        time.sleep(.005)
-    for i in range(255, 0, -1):
-        r.setLEDs(0 + i, i, i, i)
-        time.sleep(.005)
+    Keyword arguments:
+    r -- robot object and serial connection
+    num_repeats -- number of loops of light sequence (default 4 times)
 
-r.shutdown()
+    Returns: nothing, changes light intensity and color.
+
+    """
+    for i in range(num_repeats):
+        r.setLEDs(0, 255, 0, 0)
+        time.sleep(.5)
+        r.setLEDs(0, 0, 1, 0)
+        time.sleep(.5)
+        r.setLEDs(0, 0, 0, 1)
+        time.sleep(.5)
+        r.setLEDs(0, 0, 1, 0)
+        time.sleep(.5)
+        r.setLEDs(12, 255, 0, 0)
+        time.sleep(.5)
+        r.setLEDs(0, 0, 1, 0)
+        time.sleep(.5)
+        r.setLEDs(0, 0, 0, 1)
+        time.sleep(.5)
+        r.setLEDs(0, 0, 1, 0)
+        time.sleep(.5)
+        r.setLEDs(255, 255, 0, 0)
+        time.sleep(.5)
+        r.setLEDs(0, 0, 1, 0)
+        time.sleep(.5)
+        r.setLEDs(0, 0, 0, 1)
+        time.sleep(.5)
+        r.setLEDs(0, 0, 1, 0)
+        time.sleep(.5)
+        r.setLEDs(0, 255, 0, 0)
+
+if __name__ == '__main__':
+    r = create.Create(SERIAL_PORT)
+    kitt_lights(r, 5)
+    r.shutdown()
