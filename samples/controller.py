@@ -1,3 +1,5 @@
+"""Controls the robot for moving around the room."""
+
 import sys
 import time
 import random
@@ -8,10 +10,10 @@ SERIAL_PORT = "/dev/ttyUSB0"
 # our states
 GO_STATE = 1;
 TURN_STATE = 2;
-SSTRINGS = [ "NONE (0)", "GO_STATE (1)", "TURN_STATE (2)" ]
+SSTRINGS = ["NONE (0)", "GO_STATE (1)", "TURN_STATE (2)"]
 STATE = GO_STATE
 
-def transition( destinationState ):
+def transition(destinationState):
     """ state changer """
     global STATE
     print " Leaving state: ", SSTRINGS[STATE]
@@ -20,7 +22,7 @@ def transition( destinationState ):
 
 if __name__ == "__main__":
 
-    r = create.Create( SERIAL_PORT )
+    r = create.Create(SERIAL_PORT)
     settime = time.time()
 
     resp = input("Ready to roll? ")
@@ -44,22 +46,22 @@ if __name__ == "__main__":
 
             print("Planning...")
            if STATE == GO_STATE and (r.bump_left or r.bump_right):
-                transition( TURN_STATE )
+                transition(TURN_STATE)
                 r.stop()
                 desiredtime = random.uniform(1,3) # 1-3 seconds of turn
                 settime = time.time()
 
             if STATE == TURN_STATE and (thistime - settime > desiredtime):
-                transition( GO_STATE )
+                transition(GO_STATE)
 
             print("Acting...")
 
             if STATE == GO_STATE:
-                r.drive( (50,50) )
+                r.drive((50,50))
 
             if STATE == TURN_STATE:
-                r.drive( (-50,50) )
-                time.sleep( 0.25 )  # extra waiting
+                r.drive((-50,50))
+                time.sleep(0.25)  # extra waiting
 
         # clean up!
         r.shutdown()

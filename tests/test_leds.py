@@ -1,3 +1,6 @@
 from leds import kitt_lights
 import unittest
-321
+
+class TestValidInputs(unittest.TestCase):
+    def setUp(self):
+        self.stats = Stat

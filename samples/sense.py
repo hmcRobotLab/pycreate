@@ -1,8 +1,9 @@
-import create
+"""Sensor query and pack data into dictionary."""
+
 import time
+import create
 
 SERIAL_PORT = "/dev/ttyUSB0"
-r = create.Create( SERIAL_PORT )
 
 def sensor_dict_list(sensor_list, sensor_list_keys):
     """Obtain sensor values returned as list."""
@@ -78,12 +79,18 @@ OVERCURRENT_KEYS = [
     'LD_1'
 ]
 
-sensor_dict = sensor_dict_int(SENSOR_KEYS)
-sensor_dict_add = sensor_dict_list('BUMPS_AND_WHEEL_DROPS', BUMP_AND_WHEEL_DROP_KEYS)
-sensor_dict.update(sensor_dict_add)
-sensor_dict_add = sensor_dict_list('BUTTONS', BUTTON_KEYS)
-sensor_dict.update(sensor_dict_add)
-sensor_dict_add = sensor_dict_list('OVERCURRENTS', OVERCURRENT_KEYS)
-sensor_dict.update(sensor_dict_add)
-sensor_print(sensor_dict)
-r.shutdown()
+def main():
+    """Query the robot's sensors and print the result."""
+    sensor_dict = sensor_dict_int(SENSOR_KEYS)
+    sensor_dict_add = sensor_dict_list('BUMPS_AND_WHEEL_DROPS', BUMP_AND_WHEEL_DROP_KEYS)
+    sensor_dict.update(sensor_dict_add)
+    sensor_dict_add = sensor_dict_list('BUTTONS', BUTTON_KEYS)
+    sensor_dict.update(sensor_dict_add)
+    sensor_dict_add = sensor_dict_list('OVERCURRENTS', OVERCURRENT_KEYS)
+    sensor_dict.update(sensor_dict_add)
+    sensor_print(sensor_dict)
+
+if __name__ == '__main__':
+    r = create.Create(SERIAL_PORT)
+    main()
+    r.shutdown()
