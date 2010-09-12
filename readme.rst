@@ -97,7 +97,9 @@ Appendix
 
 * song_dance.py:
 
-  - A function song_dance to cause the robot to do some simple actions: first play a distinctive sound as a warning sound. After the sound stops, have robot do a little dance. Include angular and linear motion, but stay roughly within a 50 cm radius of its start point. Include some sort of repeated motion that you code using a loop.
+  - Includes a function song_dance() to first play a distinctive sound as a warning sound. After the sound stops, the robot dances. 
+
+Include angular and linear motion, but stay roughly within a 50 cm radius of its start point. Include some sort of repeated motion that you code using a loop.
 
 * wander.py:
  
