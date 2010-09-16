@@ -99,8 +99,6 @@ Appendix
 
   - Includes a function song_dance() to first play a distinctive sound as a warning sound. After the sound stops, the robot dances. 
 
-Include angular and linear motion, but stay roughly within a 50 cm radius of its start point. Include some sort of repeated motion that you code using a loop.
-
 * wander.py:
  
   - A function wander() that drives the robot in a random motion to explore an environment. The wander() function has three parameters, the robot, and linear and angular velocity. The parameters should be in the following order:

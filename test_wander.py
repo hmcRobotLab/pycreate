@@ -1,13 +1,13 @@
 import unittest
 import create
-import song_dance
+import wander
 
-class TestSong_dance(unittest.TestCase):
+class TestWander(unittest.TestCase):
 
     def test_look_around(self):
         SERIAL_PORT = "/dev/ttyUSB0"
         r = create.Create(SERIAL_PORT)
-        song_dance.look_around(r, 5)
+        wander.look_around(r, 5)
         r.shutdown()
 
     def test_c_chord(self):
