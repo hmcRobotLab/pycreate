@@ -93,15 +93,15 @@ Appendix
 
 * leds.py:
 
-  - Includes a function kitt_lights() that takes two parameters: the robot and num_repeats.  It turns on the robot’s power, play and advance lights. The sequence repeats num_repeats times and has a different color on the power led.
+  - Includes a function kitt_lights() that takes two parameters: the robot and num_repeats.  Toggles the play and advance lights on/off in sequence repeated num_repeats times and has a different color on the power led.
 
 * song_dance.py:
 
-  - Includes a function song_dance() to first play a distinctive sound as a warning sound. After the sound stops, the robot dances. 
+  - Includes a function song_dance() that takes four parameters: the robot, lights, sound, and movement.  First light up, then play a distinctive sound, continue with a robot dance, finally repeat zero or more times. 
 
 * wander.py:
  
-  - A function wander() that drives the robot in a random motion to explore an environment. The wander() function has three parameters, the robot, and linear and angular velocity. The parameters should be in the following order:
+  - Includes a function wander() that takes three parameters: the robot, and linear and angular velocity.  The parameters should be in the following order:
 
    1. robot
    2. [optional] Linear Velocity in cm/s, default = 15
