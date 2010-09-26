@@ -469,7 +469,6 @@ class Create:
         self.__sendmsg(COMMANDS["MODE_PASSIVE"],'')
 
         time.sleep(0.25) # The recommended 200ms+ pause after mode commands.
-
         self.serialLock.acquire()
         self.start()        # send Create back to passive mode
         time.sleep(0.1)
@@ -478,6 +477,8 @@ class Create:
         else:
             self.ser.close()
         self.serialLock.release()
+        print("Stopped iRobot Create and put into passive mode...")
+        print("Serial port to robot closed...")
 
     # MB: added back in as private method, since reconnect uses it.
     def _close(self):

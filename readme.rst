@@ -142,3 +142,8 @@ Appendix
     $ cd pygame/
     $ python3.1 setup.py build
     $ sudo python3.1 setup.py install
+
+* Running tests, the discover module looks for modules in the current folder or subfolder with names that start with test:
+
+    Python 3.1 or earlier: python3 -m discover
+    Python 3.2 or later: python3 -m unittest discover 

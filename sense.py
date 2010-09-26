@@ -5,14 +5,14 @@ import create
 
 SERIAL_PORT = "/dev/ttyUSB0"
 
-def sensor_dict_list(sensor_list, sensor_list_keys):
+def sensor_dict_list(r, sensor_list, sensor_list_keys):
     """Obtain sensor values returned as list."""
     values_list = r.getSensor(sensor_list)
     time.sleep(.015)
     sensor_dict = dict(zip(sensor_list_keys, values_list))
     return sensor_dict
     
-def sensor_dict_int(sensor_keys):
+def sensor_dict_int(r, sensor_keys):
     """Obtain sensor values returned as integers."""
     sensor_values  = [r.getSensor(sensor) for sensor in sensor_keys]
     time.sleep(.015)
@@ -79,18 +79,18 @@ OVERCURRENT_KEYS = [
     'LD_1'
 ]
 
-def main():
+def main(r):
     """Query the robot's sensors and print the result."""
-    sensor_dict = sensor_dict_int(SENSOR_KEYS)
-    sensor_dict_add = sensor_dict_list('BUMPS_AND_WHEEL_DROPS', BUMP_AND_WHEEL_DROP_KEYS)
+    sensor_dict = sensor_dict_int(r, SENSOR_KEYS)
+    sensor_dict_add = sensor_dict_list(r, 'BUMPS_AND_WHEEL_DROPS', BUMP_AND_WHEEL_DROP_KEYS)
     sensor_dict.update(sensor_dict_add)
-    sensor_dict_add = sensor_dict_list('BUTTONS', BUTTON_KEYS)
+    sensor_dict_add = sensor_dict_list(r, 'BUTTONS', BUTTON_KEYS)
     sensor_dict.update(sensor_dict_add)
-    sensor_dict_add = sensor_dict_list('OVERCURRENTS', OVERCURRENT_KEYS)
+    sensor_dict_add = sensor_dict_list(r, 'OVERCURRENTS', OVERCURRENT_KEYS)
     sensor_dict.update(sensor_dict_add)
     sensor_print(sensor_dict)
 
 if __name__ == '__main__':
     r = create.Create(SERIAL_PORT)
-    main()
+    main(r)
     r.shutdown()

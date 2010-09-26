@@ -46,14 +46,14 @@ def sound_c_chord(r, num_repeats=2):
         r.playSong([(60,8),(64,8),(67,8),(72,8)])
         time.sleep(.9)
 
-def dance(r, num_repeats=2):
+def wiggle(r, num_repeats=2):
     """Move around in a small area.
 
     Keyword arguments:
     r -- robot object and serial connection
-    num_repeats -- number of loops of light sequence (default 2 times)
+    num_repeats -- number of loops over moves sequence.
 
-    Returns: nothing, produces notes
+    Returns: nothing, moving forward and backwards, rotates left and right.
 
     """
     for i in range(num_repeats):
