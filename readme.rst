@@ -77,7 +77,7 @@ Music::
 Move::
 
     >>> r.go(-5)         # move at -5 cm/second, backwards
-    >>> r.stop()         # stop create motion
+    >>> r.stop()         # stop robot motion
     >>> r.go(0, 10)      # 0 cm/sec translational velocity and 10 deg/sec rotational
     >>> r.shutdown()     # stop and close the connection to the robot
 
@@ -91,9 +91,9 @@ Graphic::
 Appendix
 --------
 
-* leds.py:
+* light.py:
 
-  - Includes a function kitt_lights() that takes two parameters: the robot and num_repeats.  Toggles the play and advance lights on/off in sequence repeated num_repeats times and has a different color on the power led.
+  - Includes a function kitt() that takes two parameters: the robot and num_repeats.  Toggles the play and advance lights on/off in sequence repeated num_repeats times and has a different color on the power led.
 
 * song_dance.py:
 
