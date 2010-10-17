@@ -5,6 +5,7 @@ import create
 
 SERIAL_PORT = "/dev/ttyUSB0"
 
+
 def kitt(r, num_repeats=2):
     """Imitate Knight Rider LEDs.
 
@@ -42,6 +43,7 @@ def kitt(r, num_repeats=2):
         time.sleep(.25)
         r.setLEDs(0, 255, 0, 0)
 
+
 def look_around(r, num_repeats=2):
     """Imitate looking around with power, play, and advance leds.
 
@@ -63,7 +65,7 @@ def look_around(r, num_repeats=2):
         time.sleep(.05)
         r.setLEDs(0, 255, 0, 0)
         time.sleep(.05)
-        for i in range(num_repeats): 
+        for i in range(num_repeats):
             r.setLEDs(12, 255, 0, 0)
             time.sleep(.15)
             r.setLEDs(0, 0, 0, 0)
