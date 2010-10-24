@@ -7,7 +7,7 @@ from move import spin, shake, twist
 
 SERIAL_PORT = "/dev/ttyUSB0"
 
-def song_dance(r, num_repeats=1):
+def dance(r, num_repeats=1):
     """First light up, then play a distinctive sound, continue with 
     a robot dance
 
@@ -27,5 +27,5 @@ def song_dance(r, num_repeats=1):
 
 if __name__ == '__main__':
     r = Create(SERIAL_PORT)
-    song_dance(r)
+    dance(r)
     r.shutdown()

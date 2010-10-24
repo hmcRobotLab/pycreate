@@ -1,35 +1,11 @@
-"""Sensor query and pack data into dictionary."""
+"""Sensor query and print data."""
 
 import time
 import create
 
 SERIAL_PORT = "/dev/ttyUSB0"
 
-
-def sensor_dict_list(r, sensor_list, sensor_list_keys):
-    """Obtain sensor values returned as list."""
-    values_list = r.getSensor(sensor_list)
-    time.sleep(.015)
-    sensor_dict = dict(zip(sensor_list_keys, values_list))
-    return sensor_dict
-
-
-def sensor_dict_int(r, sensor_keys):
-    """Obtain sensor values returned as integers."""
-    sensor_values = [r.getSensor(sensor) for sensor in sensor_keys]
-    time.sleep(.015)
-    sensor_dict = dict(zip(sensor_keys, sensor_values))
-    return sensor_dict
-
-
-def sensor_print(sensor_dict):
-    keys = list(sensor_dict.keys())
-    keys.sort()
-    for k in keys:
-        print(k, ' = ', sensor_dict[k])
-
-# list of sensor keys that have a single return value
-SENSOR_KEYS = [
+SENSOR_KEYS = [     # sensor keys with single return value
     'CLIFF_LEFT_SIGNAL',
     'CLIFF_FRONT_LEFT_SIGNAL',
     'CLIFF_FRONT_RIGHT_SIGNAL',
@@ -79,6 +55,36 @@ OVERCURRENT_KEYS = [
     'LD_1']
 
 
+def sensor_dict_list(r, sensor_list, sensor_list_keys):
+    """Obtain sensor values returned as list."""
+    values_list = r.getSensor(sensor_list)
+    time.sleep(.015)
+    sensor_dict = dict(zip(sensor_list_keys, values_list))
+    return sensor_dict
+
+
+def sensor_dict_int(r, sensor_keys):
+    """Obtain sensor values returned as integers."""
+    sensor_values = [r.getSensor(sensor) for sensor in sensor_keys]
+    time.sleep(.015)
+    sensor_dict = dict(zip(sensor_keys, sensor_values))
+    return sensor_dict
+
+
+def sensor_print(sensor_dict):
+    keys = list(sensor_dict.keys())
+    keys.sort()
+    for k in keys:
+        print(k, ' = ', sensor_dict[k])
+
+
+def sensor_print_file(sensor_dict, filename):
+    out_file = open(filename, "wt")
+    for k, v in sensor_dict.items():
+        out_file.write(k + "," + v + "\n")
+    out_file.close()
+
+
 def main(r):
     """Query the robot's sensors and print the result."""
     sensor_dict = sensor_dict_int(r, SENSOR_KEYS)
@@ -90,6 +96,7 @@ def main(r):
     sensor_dict_add = sensor_dict_list(r, 'OVERCURRENTS', OVERCURRENT_KEYS)
     sensor_dict.update(sensor_dict_add)
     sensor_print(sensor_dict)
+    sensor_print_file(sensor_dict, test.log)
 
 if __name__ == '__main__':
     r = create.Create(SERIAL_PORT)
