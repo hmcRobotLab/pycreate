@@ -13,8 +13,10 @@ def load_numbers(r, filename):
         if not in_line:
             break
         stripped_line = in_line.rstrip()
+        print(stripped_line)
         turn_angle_in_deg, turn_velocity, fwd_distance, fwd_velocity = \
-        [int(string) for string in stripped_line.split(" ")]
+        [int(string) for string in stripped_line.split()]
+        print(turn_angle_in_deg, turn_velocity, fwd_distance, fwd_velocity)
         r.go(0, turn_velocity) 
         r.waitAngle(turn_angle_in_deg)
         r.stop()
@@ -37,15 +39,15 @@ def via(r, filename):
 
     """
     pass
-    sense distance
-    waitAngle
-    waitDistance
-    sleep(long)
-    shutdown
+    #sense distance
+    #waitAngle
+    #waitDistance
+    #sleep(long)
+    #shutdown
 
 if __name__ == '__main__':
     r = Create(SERIAL_PORT)
     filename = input("Please enter name of data file: ")
     load_numbers(r, filename)
-    time.sleep(100)
+    sleep(50)
     r.shutdown()

@@ -78,10 +78,10 @@ def sensor_print(sensor_dict):
         print(k, ' = ', sensor_dict[k])
 
 
-def sensor_print_file(sensor_dict, filename):
-    out_file = open(filename, "wt")
+def sensor_print_file(sensor_dict):
+    out_file = open('/tmp/sense.log', 'w')
     for k, v in sensor_dict.items():
-        out_file.write(k + "," + v + "\n")
+        out_file.write(k + "," + str(v) + "\n")
     out_file.close()
 
 
@@ -96,7 +96,7 @@ def main(r):
     sensor_dict_add = sensor_dict_list(r, 'OVERCURRENTS', OVERCURRENT_KEYS)
     sensor_dict.update(sensor_dict_add)
     sensor_print(sensor_dict)
-    sensor_print_file(sensor_dict, test.log)
+    sensor_print_file(sensor_dict)
 
 if __name__ == '__main__':
     r = create.Create(SERIAL_PORT)
